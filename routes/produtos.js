@@ -3,21 +3,21 @@ const router = express.Router();
 let supabase = require('../data/supabase');
 
 router.get('/erro-teste', (req, res) => {
-    throw new Error("O servidor do Haruy Sushi tropeçou!")
+    throw new Error("O servidor erro teste ")
 });
 
 router.get('/', async (req,res, next) => {
     try{
-
-        const {categoriaId} = req.query;
+        const {categoriaId} = req.body;
         let consulta = supabase.from('produtos').select('*');
 
         if(categoriaId){
             consulta = consulta.eq('categoriaId', categoriaId);
         }
-        const {data, error} = await consulta.order('id', {ascending: true});
-        if (error) throw error;
-        res.json(data);        
+        const{data, error} = await consulta.order('id', {ascending: true});
+        
+        if(error) throw error;
+        res.json(data);
     }catch (err) {
         next(err);
     }
@@ -44,18 +44,18 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
-  try{
-    const {data, error} = await supabase
-    .from('produtos')
-    .inserir([req.body])
-    .select();
-    
-    if (error) throw error;
-    res.status(201).json(data[0]);
-  }catch (err){
-    next(err);
-  }
-  })
+    try{
+        const {data, error} = await supabase
+        .from('produtos')
+        .insert([req.body])
+        .select();
+
+        if (error) throw error;
+        res.status(201).json(data[0]);
+    }catch (err){
+        next(err);
+    }
+});
 
 router.put('/:id', async (req, res, next) => {
     try{
@@ -78,16 +78,18 @@ router.put('/:id', async (req, res, next) => {
 });
 
 router.delete('/:id', async (req, res, next) => {
-  try{
-    const {id} = req.params;
-    const {error} = await supabase
+    try{
+        const {id} = req.params;
+        const {error} = await supabase
         .from('produtos')
-        .delet()
+        .delete()
         .eq('id', id);
-     if(error) throw error;
+
+        if(error) throw error;
         res.json({mensagem: 'produto deletado'});
     }catch (err){
         next(err);
     }
 });
+
 module.exports = router;
